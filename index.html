@@ -1,4 +1,4 @@
-<<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -104,7 +104,7 @@ textarea{
   border-top:1px dashed rgba(255,255,255,.2);
 }
 
-/* -------- CUSTOM CHECKBOX -------- */
+/* CHECKBOX */
 .checkbox{
   appearance:none;
   width:18px;
@@ -115,9 +115,7 @@ textarea{
   cursor:pointer;
   position:relative;
 }
-.checkbox:checked{
-  background:var(--accent);
-}
+.checkbox:checked{background:var(--accent)}
 .checkbox:checked::after{
   content:"✓";
   position:absolute;
@@ -128,7 +126,7 @@ textarea{
   font-weight:900;
 }
 
-/* -------- TIERS -------- */
+/* TIERS */
 .tiers{
   display:flex;
   gap:12px;
@@ -143,22 +141,14 @@ textarea{
   align-items:center;
   gap:8px;
   font-size:13px;
-  cursor:pointer;
 }
 
-/* -------- LAWS SCROLL -------- */
+/* LAWS */
 .lawsScroll{
   max-height:420px;
   overflow:auto;
   padding-right:6px;
 }
-.lawsScroll::-webkit-scrollbar{width:8px}
-.lawsScroll::-webkit-scrollbar-thumb{
-  background:rgba(255,255,255,.25);
-  border-radius:999px;
-}
-
-/* -------- LAWS -------- */
 details{
   border:1px solid var(--border);
   border-radius:14px;
@@ -170,25 +160,17 @@ summary{
   padding:10px 12px;
   font-weight:800;
   font-size:13px;
-  color:#e7dbff;
 }
 .lawRow{
   display:flex;
   gap:10px;
   padding:10px;
   border-top:1px solid rgba(255,255,255,.1);
-  align-items:flex-start;
 }
-.lawText b{
-  display:block;
-  font-size:13px;
-}
-.lawText span{
-  font-size:12px;
-  color:var(--muted);
-}
+.lawText b{display:block}
+.lawText span{font-size:12px;color:var(--muted)}
 
-/* -------- BUTTONS -------- */
+/* BUTTONS */
 .actions{
   display:flex;
   gap:10px;
@@ -207,7 +189,7 @@ button{
 button.primary{background:#3a1b6d}
 button.danger{background:#4a1425}
 
-/* -------- OUTPUT -------- */
+/* OUTPUT */
 .output{
   min-height:320px;
   font-family:monospace;
@@ -219,7 +201,7 @@ button.danger{background:#4a1425}
 <body>
 <div class="container">
   <h1>Arrest Log Generator</h1>
-  <div class="subtitle">Scroll laws, select tiers, generate arrest log.</div>
+  <div class="subtitle">Fill in details, select laws, generate arrest log.</div>
 
   <div class="grid">
     <!-- LEFT -->
@@ -227,45 +209,55 @@ button.danger{background:#4a1425}
       <div class="panelHeader">Arrest Details</div>
       <div class="panelBody">
 
+        <!-- ARRESTER INFO -->
         <div class="two">
           <div>
-            <label>Offender Username</label>
-            <input id="username">
+            <label>Arrester’s Username</label>
+            <input id="arrester">
           </div>
-
           <div>
-            <label>Offender Rank</label>
-            <select id="rank">
-              <option value="">-- Select rank --</option>
-
-              <option>Sith Potential</option>
-
-              <option>Sith Acolyte I</option>
-              <option>Sith Acolyte II</option>
-              <option>Sith Acolyte III</option>
-              <option>Sith Acolyte IV</option>
-              <option>Sith Acolyte V</option>
-
-              <option>Sith Initiate</option>
-              <option>Sith Apprentice</option>
-              <option>Sith Knight</option>
-              <option>Advanced Sith Knight</option>
-
-              <option>Sith Lord</option>
-            </select>
+            <label>Arrester’s DCoJ Rank</label>
+            <input id="arresterRank">
           </div>
+        </div>
 
-          <div>
-            <label>Date of Event</label>
-            <input type="date" id="date">
-          </div>
+        <div class="section">
+          <div class="two">
+            <div>
+              <label>Offender Username</label>
+              <input id="username">
+            </div>
 
-          <div>
-            <label>Tier(s)</label>
-            <div class="tiers">
-              <label><input type="checkbox" class="checkbox tier" value="Tier I"> Tier I</label>
-              <label><input type="checkbox" class="checkbox tier" value="Tier II"> Tier II</label>
-              <label><input type="checkbox" class="checkbox tier" value="Tier III"> Tier III</label>
+            <div>
+              <label>Offender Rank</label>
+              <select id="rank">
+                <option value="">-- Select rank --</option>
+                <option>Sith Potential</option>
+                <option>Sith Acolyte I</option>
+                <option>Sith Acolyte II</option>
+                <option>Sith Acolyte III</option>
+                <option>Sith Acolyte IV</option>
+                <option>Sith Acolyte V</option>
+                <option>Sith Initiate</option>
+                <option>Sith Apprentice</option>
+                <option>Sith Knight</option>
+                <option>Advanced Sith Knight</option>
+                <option>Sith Lord</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Date of Event</label>
+              <input type="date" id="date">
+            </div>
+
+            <div>
+              <label>Tier(s)</label>
+              <div class="tiers">
+                <label><input type="checkbox" class="checkbox tier" value="Tier I"> Tier I</label>
+                <label><input type="checkbox" class="checkbox tier" value="Tier II"> Tier II</label>
+                <label><input type="checkbox" class="checkbox tier" value="Tier III"> Tier III</label>
+              </div>
             </div>
           </div>
         </div>
@@ -343,29 +335,29 @@ for(const group in lawsData){
     row.className="lawRow";
     row.innerHTML=
       `<input type="checkbox" class="checkbox lawCheck" value="${l[0]}: ${l[1]}">
-       <div class="lawText">
-         <b>${l[0]}</b>
-         <span>${l[1]}</span>
-       </div>`;
+       <div class="lawText"><b>${l[0]}</b><span>${l[1]}</span></div>`;
     d.appendChild(row);
   });
   lawsEl.appendChild(d);
 }
 
 const today=new Date();
-date.value=\`\${today.getFullYear()}-\${String(today.getMonth()+1).padStart(2,"0")}-\${String(today.getDate()).padStart(2,"0")}\`;
+date.value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
 
 function generate(){
  const tiers=[...document.querySelectorAll(".tier:checked")].map(t=>t.value).join(", ");
  const laws=[...document.querySelectorAll(".lawCheck:checked")].map(l=>l.value).join("; ");
  output.value=
-\`Offender username: \${username.value}
-Offender rank: \${rank.value}
-Date of the event: \${date.value}
-Law(s) broken: \${laws}
-Tier(s): \${tiers}
-Summary of event: \${summary.value}
-Evidence: \${evidence.value}\`;
+`Arrester’s username: ${arrester.value}
+Arrester’s DCoJ rank: ${arresterRank.value}
+
+Offender username: ${username.value}
+Offender rank: ${rank.value}
+Date of the event: ${date.value}
+Law(s) broken: ${laws}
+Tier(s): ${tiers}
+Summary of event: ${summary.value}
+Evidence: ${evidence.value}`;
 }
 function copyText(){navigator.clipboard.writeText(output.value);}
 function resetAll(){location.reload();}
