@@ -4,274 +4,613 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Arrest Log Generator</title>
-
   <style>
     :root{
-      --bg1:#12001f;
-      --bg2:#1a0030;
-      --text:#f3eaff;
-      --muted:#cdb7ff;
-      --line:rgba(255,255,255,.14);
+      --bg0:#07020f;
+      --bg1:#0c0217;
+      --bg2:#12001f;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.04);
+      --line: rgba(255,255,255,.12);
+      --text:#f6eeff;
+      --muted:#cbb7ff;
+      --muted2:#a992ff;
       --accent:#a66bff;
-      --danger:#ff6b8a;
+      --accent2:#6fdbff;
+      --good:#5dffb0;
+      --warn:#ffd36f;
+      --bad:#ff6b8a;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 14px;
     }
 
-    *{box-sizing:border-box}
-
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       background:
-        radial-gradient(1200px 600px at 20% 0%, #2a0054 0%, transparent 60%),
-        radial-gradient(900px 600px at 100% 30%, #3a0070 0%, transparent 55%),
+        radial-gradient(1100px 560px at 10% -10%, rgba(166,107,255,.35) 0%, transparent 60%),
+        radial-gradient(900px 520px at 100% 25%, rgba(111,219,255,.22) 0%, transparent 55%),
+        radial-gradient(700px 450px at 30% 110%, rgba(255,107,138,.12) 0%, transparent 55%),
         linear-gradient(160deg, var(--bg1), var(--bg2));
-      min-height:100vh;
+      overflow-x:hidden;
     }
 
-    header{
-      max-width:1100px;
-      margin:0 auto;
-      padding:28px 18px 10px;
+    /* top glow */
+    .bg-noise{
+      position:fixed; inset:-2px;
+      pointer-events:none;
+      opacity:.05;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      background-size:280px 280px;
+      mix-blend-mode:overlay;
     }
 
-    h1{margin:0 0 6px;font-size:22px}
-    p.sub{margin:0;color:var(--muted);font-size:14px}
-
-    .wrap{
-      max-width:1100px;
-      margin:0 auto;
-      padding:16px 18px 34px;
-      display:grid;
-      grid-template-columns:1.05fr .95fr;
-      gap:14px;
+    .container{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 26px 18px 34px;
     }
 
-    @media (max-width:900px){
-      .wrap{grid-template-columns:1fr}
-    }
-
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line);
-      border-radius:18px;
-      overflow:hidden;
-    }
-
-    .hd{
-      padding:14px;
-      border-bottom:1px solid var(--line);
+    .hero{
       display:flex;
+      align-items:flex-end;
       justify-content:space-between;
+      gap:14px;
+      margin-bottom: 14px;
+    }
+
+    .title{
+      display:flex;
+      gap:12px;
       align-items:center;
     }
 
-    .bd{padding:14px}
-
-    .grid2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
+    .logo{
+      width:42px; height:42px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(111,219,255,.55) 0%, transparent 70%),
+        radial-gradient(14px 14px at 75% 65%, rgba(166,107,255,.65) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
     }
 
-    @media (max-width:520px){
-      .grid2{grid-template-columns:1fr}
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing:.2px;
+      line-height:1.15;
+    }
+    .sub{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 13.5px;
+      line-height:1.35;
+    }
+
+    .pillRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      padding:7px 10px;
+      border-radius: 999px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      user-select:none;
+      backdrop-filter: blur(10px);
+    }
+    .dot{
+      width:8px; height:8px;
+      border-radius:99px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(166,107,255,.15);
+    }
+    .dot.cyan{ background: var(--accent2); box-shadow: 0 0 0 4px rgba(111,219,255,.12); }
+    .dot.good{ background: var(--good); box-shadow: 0 0 0 4px rgba(93,255,176,.12); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .pillRow{ justify-content:flex-start; }
+    }
+
+    .card{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(700px 260px at 30% 0%, rgba(166,107,255,.10), transparent 60%),
+        radial-gradient(600px 240px at 95% 20%, rgba(111,219,255,.07), transparent 60%);
+      opacity:.9;
+    }
+    .card > *{ position:relative; }
+
+    .cardHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+    }
+    .cardHead h2{
+      margin:0;
+      font-size: 13px;
+      letter-spacing:.35px;
+      text-transform: uppercase;
+      color: rgba(245,235,255,.92);
+    }
+    .hint{
+      font-size:12px;
+      color: var(--muted);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .miniBadge{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      border-radius:999px;
+      padding:6px 10px;
+      display:flex;
+      gap:7px;
+      align-items:center;
+    }
+
+    .cardBody{ padding:14px; }
+
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 520px){
+      .twoCol{ grid-template-columns: 1fr; }
     }
 
     label{
       display:block;
       font-size:12px;
-      color:var(--muted);
-      margin-bottom:6px;
+      color: var(--muted);
+      margin: 0 0 6px;
     }
 
-    input, textarea, select{
+    input[type="text"], input[type="date"], textarea, select{
       width:100%;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.25);
-      color:var(--text);
+      padding:11px 11px;
+      border-radius: var(--radius2);
+      border:1px solid rgba(255,255,255,.13);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline:none;
+      transition: border-color .18s ease, transform .06s ease, background .18s ease;
     }
-
-    textarea{min-height:90px}
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(166,107,255,.55);
+      background: rgba(0,0,0,.28);
+    }
+    textarea{
+      min-height: 98px;
+      resize: vertical;
+    }
 
     .section{
-      margin-top:12px;
-      padding-top:12px;
-      border-top:1px dashed rgba(255,255,255,.2);
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top:1px dashed rgba(255,255,255,.18);
     }
 
-    .tierBox{
-      display:flex;
-      gap:12px;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.2);
-      flex-wrap:wrap;
-    }
-
-    .tierBox label{
-      display:flex;
-      gap:6px;
-      align-items:center;
-      color:var(--text);
-    }
-
-    .law{
+    .toolbar{
       display:flex;
       gap:10px;
-      padding:8px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:10px;
-      background:rgba(255,255,255,.04);
-      margin-bottom:6px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      justify-content:space-between;
+      margin-bottom: 10px;
+    }
+    .searchWrap{
+      flex: 1 1 260px;
+      max-width: 680px;
+    }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
     }
 
     .btn{
-      padding:10px 14px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      color:var(--text);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 14px;
       cursor:pointer;
-      font-weight:700;
+      font-weight: 800;
+      font-size: 13px;
+      transition: transform .06s ease, background .18s ease, border-color .18s ease, filter .18s ease;
+      user-select:none;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      justify-content:center;
+      min-height: 40px;
+    }
+    .btn:hover{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.24);
+      filter: brightness(1.02);
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      border-color: rgba(166,107,255,.40);
+      background: linear-gradient(180deg, rgba(166,107,255,.38), rgba(166,107,255,.16));
+    }
+    .btn.danger{
+      border-color: rgba(255,107,138,.40);
+      background: linear-gradient(180deg, rgba(255,107,138,.30), rgba(255,107,138,.12));
     }
 
-    .btn.primary{background:rgba(166,107,255,.3)}
-    .btn.danger{background:rgba(255,107,138,.3)}
+    .help{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.4;
+    }
+    .help b{ color: rgba(245,235,255,.95); }
 
+    .tiers{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding:10px 10px;
+      border-radius: var(--radius2);
+      border:1px solid rgba(255,255,255,.13);
+      background: rgba(0,0,0,.20);
+    }
+    .tierOpt{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-size:12px;
+      color: rgba(245,235,255,.92);
+      user-select:none;
+      padding:7px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      transition: border-color .18s ease, background .18s ease, transform .06s ease;
+    }
+    .tierOpt:hover{
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.05);
+    }
+    .tierOpt input{ transform: translateY(1px); }
+
+    /* Laws */
+    .lawGroups{ display:grid; gap:10px; }
+    details{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      border-radius: 16px;
+      overflow:hidden;
+    }
+    summary{
+      list-style:none;
+      cursor:pointer;
+      padding:11px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      user-select:none;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    }
+    summary::-webkit-details-marker{ display:none; }
+
+    .sumLeft{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .groupName{
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing:.2px;
+    }
+    .chip{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+    }
+    .chip.count{
+      border-color: rgba(111,219,255,.22);
+      color: rgba(210,248,255,.95);
+      background: rgba(111,219,255,.08);
+    }
+
+    .lawList{
+      padding: 10px 12px 12px;
+      display:grid;
+      gap:8px;
+    }
+    .lawItem{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px 10px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      transition: border-color .18s ease, background .18s ease, transform .06s ease;
+    }
+    .lawItem:hover{
+      border-color: rgba(255,255,255,.20);
+      background: rgba(255,255,255,.05);
+    }
+    .lawItem input{ margin-top: 2px; }
+    .lawMeta{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .lawTitle{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .lawDesc{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+    .codePill{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid rgba(166,107,255,.35);
+      color: rgba(245,235,255,.96);
+      background: rgba(166,107,255,.10);
+    }
+
+    /* Output */
     .output{
-      min-height:260px;
-      font-family:monospace;
-      background:rgba(0,0,0,.35);
+      width:100%;
+      min-height: 340px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      background: rgba(0,0,0,.32);
+    }
+
+    .stickyActions{
+      position: sticky;
+      bottom: 12px;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.24));
+      backdrop-filter: blur(10px);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .status{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .status b{ color: rgba(245,235,255,.95); }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 18px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      color: rgba(245,235,255,.95);
+      font-size:12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.45);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-6px);
     }
   </style>
 </head>
 
 <body>
+  <div class="bg-noise"></div>
 
-<header>
-  <h1>Arrest Log Generator</h1>
-  <p class="sub">Fill in details, select laws & tiers, then generate an arrest log.</p>
-</header>
-
-<main class="wrap">
-
-<!-- LEFT -->
-<section class="card">
-  <div class="hd">
-    <h2>Arrest Details</h2>
-  </div>
-
-  <div class="bd">
-
-    <div class="grid2">
+  <div class="container">
+    <div class="hero">
       <div>
-        <label>Offender Username</label>
-        <input id="username">
-      </div>
-
-      <div>
-        <label>Offender Rank</label>
-        <select id="rank">
-          <option value="">-- Select rank --</option>
-          <option>Sith Potential</option>
-
-          <option>Sith Acolyte I</option>
-          <option>Sith Acolyte II</option>
-          <option>Sith Acolyte III</option>
-          <option>Sith Acolyte IV</option>
-          <option>Sith Acolyte V</option>
-
-          <option>Sith Initiate</option>
-          <option>Sith Apprentice</option>
-          <option>Sith Knight</option>
-
-          <option>Sith Lord</option>
-          <option>Darth</option>
-          <option>Powerbase</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Date of Event</label>
-        <input type="date" id="date">
-      </div>
-
-      <div>
-        <label>Tier(s)</label>
-        <div class="tierBox">
-          <label><input type="checkbox" class="tier" value="Tier I"> Tier I</label>
-          <label><input type="checkbox" class="tier" value="Tier II"> Tier II</label>
-          <label><input type="checkbox" class="tier" value="Tier III"> Tier III</label>
+        <div class="title">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Arrest Log Generator</h1>
+            <p class="sub">Select laws, choose tier(s), fill in details, then generate a clean arrest log message.</p>
+          </div>
         </div>
       </div>
+      <div class="pillRow">
+        <div class="pill"><span class="dot"></span><span id="lawsSelectedPill">0 laws selected</span></div>
+        <div class="pill"><span class="dot cyan"></span><span id="tiersSelectedPill">0 tiers selected</span></div>
+        <div class="pill"><span class="dot good"></span><span>GitHub Pages ready</span></div>
+      </div>
     </div>
 
-    <div class="section">
-      <label>Laws Broken</label>
+    <div class="grid">
+      <!-- LEFT: INPUTS + LAWS -->
+      <section class="card">
+        <div class="cardHead">
+          <h2>Arrest Details</h2>
+          <div class="hint">
+            <span class="miniBadge">Auto-date: <b id="dateBadge">—</b></span>
+          </div>
+        </div>
 
-      <div class="law"><input type="checkbox" class="lawCheck" value="P-02 Insubordination"> P-02 Insubordination</div>
-      <div class="law"><input type="checkbox" class="lawCheck" value="S-04 Treason"> S-04 Treason</div>
-      <div class="law"><input type="checkbox" class="lawCheck" value="C-01 Cowardice"> C-01 Cowardice</div>
-      <div class="law"><input type="checkbox" class="lawCheck" value="O-01 Major Toxicity"> O-01 Major Toxicity</div>
+        <div class="cardBody">
+          <div class="twoCol">
+            <div>
+              <label for="username">Offender username</label>
+              <input id="username" type="text" placeholder="e.g. DarthExample" />
+            </div>
 
+            <div>
+              <label for="rank">Offender rank</label>
+              <select id="rank">
+                <option value="">-- Select rank --</option>
+                <option>Sith Potential</option>
+
+                <option>Sith Acolyte I</option>
+                <option>Sith Acolyte II</option>
+                <option>Sith Acolyte III</option>
+                <option>Sith Acolyte IV</option>
+                <option>Sith Acolyte V</option>
+
+                <option>Sith Initiate</option>
+                <option>Sith Apprentice</option>
+                <option>Sith Knight</option>
+
+                <option>Sith Lord</option>
+                <option>Darth</option>
+                <option>Powerbase</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="eventDate">Date of the event</label>
+              <input id="eventDate" type="date" />
+            </div>
+
+            <div>
+              <label>Tier(s)</label>
+              <div class="tiers" id="tiersBox">
+                <label class="tierOpt"><input type="checkbox" class="tierPick" value="Tier I"> Tier I</label>
+                <label class="tierOpt"><input type="checkbox" class="tierPick" value="Tier II"> Tier II</label>
+                <label class="tierOpt"><input type="checkbox" class="tierPick" value="Tier III"> Tier III</label>
+              </div>
+              <div class="help" style="margin-top:8px;">
+                You choose tier(s) manually. (If you want, I can add “suggested tier” hints later.)
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="toolbar">
+              <div class="searchWrap">
+                <label for="lawSearch">Search laws</label>
+                <input id="lawSearch" type="text" placeholder="Search by code or name (e.g. P-02, Treason, Toxicity)" />
+              </div>
+              <div class="btnRow">
+                <button class="btn" id="selectVisibleBtn" type="button">Select visible</button>
+                <button class="btn danger" id="clearSelectionBtn" type="button">Clear selection</button>
+              </div>
+            </div>
+
+            <div class="help">
+              Selected laws will be listed under <b>Law(s) broken</b>. Use the search to quickly find a code.
+            </div>
+
+            <div class="lawGroups" id="lawGroups" style="margin-top:10px;"></div>
+          </div>
+
+          <div class="section">
+            <div class="twoCol">
+              <div>
+                <label for="summary">Summary of event</label>
+                <textarea id="summary" placeholder="Write what happened..."></textarea>
+              </div>
+              <div>
+                <label for="evidence">Evidence</label>
+                <textarea id="evidence" placeholder="Links, screenshots, witnesses, logs, etc..."></textarea>
+              </div>
+            </div>
+
+            <div class="stickyActions">
+              <div class="status" id="statusText">
+                <span>Ready.</span>
+              </div>
+              <div class="btnRow">
+                <button class="btn primary" id="generateBtn" type="button">Generate message</button>
+                <button class="btn" id="copyBtn" type="button">Copy</button>
+                <button class="btn danger" id="resetAllBtn" type="button">Reset all</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: OUTPUT -->
+      <section class="card">
+        <div class="cardHead">
+          <h2>Generated Arrest Log</h2>
+          <div class="hint">
+            <span class="miniBadge">Format: <b>exact template</b></span>
+          </div>
+        </div>
+        <div class="cardBody">
+          <label for="output">Output</label>
+          <textarea id="output" class="output" readonly placeholder="Click “Generate message”…"></textarea>
+          <div class="help" style="margin-top:10px;">
+            Tip: after generating, press <b>Copy</b> to paste it into Discord/your logs.
+          </div>
+        </div>
+      </section>
     </div>
-
-    <div class="section">
-      <label>Summary of Event</label>
-      <textarea id="summary"></textarea>
-
-      <label>Evidence</label>
-      <textarea id="evidence"></textarea>
-    </div>
-
   </div>
-</section>
 
-<!-- RIGHT -->
-<section class="card">
-  <div class="hd">
-    <h2>Generated Arrest Log</h2>
-    <div>
-      <button class="btn primary" onclick="generate()">Generate</button>
-      <button class="btn" onclick="copyText()">Copy</button>
-    </div>
-  </div>
+  <div class="toast" id="toast">Copied to clipboard</div>
 
-  <div class="bd">
-    <textarea id="output" class="output" readonly></textarea>
-  </div>
-</section>
-
-</main>
-
-<script>
-  // auto date
-  const d = new Date();
-  document.getElementById("date").value =
-    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-
-  function generate(){
-    const tiers = [...document.querySelectorAll(".tier:checked")].map(t=>t.value).join(", ");
-    const laws = [...document.querySelectorAll(".lawCheck:checked")].map(l=>l.value).join("; ");
-
-    document.getElementById("output").value =
-`Offender username: ${username.value}
-Offender rank: ${rank.value}
-Date of the event: ${date.value}
-Law(s) broken: ${laws}
-Tier(s): ${tiers}
-Summary of event: ${summary.value}
-Evidence: ${evidence.value}`;
-  }
-
-  function copyText(){
-    navigator.clipboard.writeText(output.value);
-  }
-</script>
-
-</body>
-</html>
+  <script>
+    // --- Laws database (grouped) ---
+    const LAWS = [
+      // Article II: Code of Power
+      { group: "Article II: The Code of Power", code: "P-01", name: "Contempt of Superio
