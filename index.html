@@ -7,11 +7,11 @@
 
 <style>
 :root{
-  --bg:#0b0214;
-  --panel:#140622;
-  --border:rgba(255,255,255,.14);
-  --text:#f5eeff;
-  --muted:#cbb7ff;
+  --bg:#0a0212;
+  --panel:#140624;
+  --border:rgba(255,255,255,.16);
+  --text:#f7f2ff;
+  --muted:#cdb7ff;
   --accent:#a66bff;
   --danger:#ff6b8a;
 }
@@ -21,7 +21,7 @@
 body{
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  background: linear-gradient(160deg,#06010c,#12001f);
+  background: radial-gradient(circle at top,#1a0833,#06010c);
   color:var(--text);
 }
 
@@ -43,7 +43,7 @@ h1{
 
 .grid{
   display:grid;
-  grid-template-columns: 1.1fr .9fr;
+  grid-template-columns:1.1fr .9fr;
   gap:14px;
 }
 @media(max-width:900px){
@@ -54,13 +54,12 @@ h1{
   background:var(--panel);
   border:1px solid var(--border);
   border-radius:16px;
-  overflow:hidden;
 }
 
 .panelHeader{
   padding:12px 14px;
   border-bottom:1px solid var(--border);
-  font-weight:700;
+  font-weight:800;
   font-size:13px;
   letter-spacing:.4px;
 }
@@ -81,7 +80,7 @@ input, textarea, select{
   padding:10px;
   border-radius:12px;
   border:1px solid var(--border);
-  background:#080010;
+  background:#0b0114;
   color:var(--text);
 }
 
@@ -105,25 +104,49 @@ textarea{
   border-top:1px dashed rgba(255,255,255,.2);
 }
 
-/* TIERS */
+/* ---------- CUSTOM CHECKBOX ---------- */
+.checkbox{
+  appearance:none;
+  width:18px;
+  height:18px;
+  border-radius:5px;
+  border:2px solid var(--accent);
+  background:#0b0114;
+  cursor:pointer;
+  position:relative;
+}
+.checkbox:checked{
+  background:var(--accent);
+}
+.checkbox:checked::after{
+  content:"✓";
+  position:absolute;
+  color:#12001f;
+  font-size:14px;
+  left:3px;
+  top:-1px;
+  font-weight:900;
+}
+
+/* ---------- TIERS ---------- */
 .tiers{
   display:flex;
-  gap:10px;
+  gap:12px;
   flex-wrap:wrap;
   padding:10px;
   border-radius:12px;
   border:1px solid var(--border);
-  background:#080010;
+  background:#0b0114;
 }
 .tiers label{
   display:flex;
-  gap:6px;
   align-items:center;
-  font-size:12px;
-  color:var(--text);
+  gap:8px;
+  font-size:13px;
+  cursor:pointer;
 }
 
-/* LAWS SCROLL */
+/* ---------- LAWS SCROLL ---------- */
 .lawsScroll{
   max-height:420px;
   overflow:auto;
@@ -131,39 +154,41 @@ textarea{
 }
 .lawsScroll::-webkit-scrollbar{width:8px}
 .lawsScroll::-webkit-scrollbar-thumb{
-  background:rgba(255,255,255,.2);
+  background:rgba(255,255,255,.25);
   border-radius:999px;
 }
-.lawsScroll::-webkit-scrollbar-track{
-  background:rgba(0,0,0,.2);
-}
 
-/* LAWS */
+/* ---------- LAWS ---------- */
 details{
   border:1px solid var(--border);
   border-radius:14px;
   margin-bottom:10px;
-  background:#090012;
+  background:#0b0114;
 }
 summary{
   cursor:pointer;
   padding:10px 12px;
-  font-weight:700;
+  font-weight:800;
   font-size:13px;
+  color:#e7dbff;
 }
-.law{
+.lawRow{
   display:flex;
   gap:10px;
   padding:10px;
   border-top:1px solid rgba(255,255,255,.1);
+  align-items:flex-start;
 }
-.law b{font-size:13px}
-.law span{
+.lawText b{
+  display:block;
+  font-size:13px;
+}
+.lawText span{
   font-size:12px;
   color:var(--muted);
 }
 
-/* BUTTONS */
+/* ---------- BUTTONS ---------- */
 .actions{
   display:flex;
   gap:10px;
@@ -174,19 +199,19 @@ button{
   padding:10px 14px;
   border-radius:12px;
   border:1px solid var(--border);
-  background:#1a0a30;
+  background:#1f0b3a;
   color:var(--text);
-  font-weight:700;
+  font-weight:800;
   cursor:pointer;
 }
 button.primary{background:#3a1b6d}
 button.danger{background:#4a1425}
 
-/* OUTPUT */
+/* ---------- OUTPUT ---------- */
 .output{
   min-height:320px;
   font-family:monospace;
-  background:#080010;
+  background:#0b0114;
 }
 </style>
 </head>
@@ -194,7 +219,7 @@ button.danger{background:#4a1425}
 <body>
 <div class="container">
   <h1>Arrest Log Generator</h1>
-  <div class="subtitle">Fill details, scroll laws, select tiers, generate arrest log.</div>
+  <div class="subtitle">Scroll and select laws, choose tiers, generate arrest log.</div>
 
   <div class="grid">
     <!-- LEFT -->
@@ -235,9 +260,9 @@ button.danger{background:#4a1425}
           <div>
             <label>Tier(s)</label>
             <div class="tiers">
-              <label><input type="checkbox" class="tier" value="Tier I"> Tier I</label>
-              <label><input type="checkbox" class="tier" value="Tier II"> Tier II</label>
-              <label><input type="checkbox" class="tier" value="Tier III"> Tier III</label>
+              <label><input type="checkbox" class="checkbox tier" value="Tier I"> Tier I</label>
+              <label><input type="checkbox" class="checkbox tier" value="Tier II"> Tier II</label>
+              <label><input type="checkbox" class="checkbox tier" value="Tier III"> Tier III</label>
             </div>
           </div>
         </div>
@@ -273,33 +298,33 @@ button.danger{background:#4a1425}
 </div>
 
 <script>
-const lawsData = {
-  "Article II: Code of Power":[
-    ["P-01","Contempt of Superiors"],
-    ["P-02","Insubordination"],
-    ["P-03","Illegitimate Usurpation"],
-    ["P-04","Abuse of Authority"],
-    ["P-05","Violation of Sith Regalia"]
-  ],
-  "Article III: Code of Secrecy":[
-    ["S-01","Divulgence of Council Secrets"],
-    ["S-02","Grand Deception"],
-    ["S-03","Unauthorized Access"],
-    ["S-04","Treason"]
-  ],
-  "Article IV: Code of Conflict":[
-    ["C-01","Cowardice"],
-    ["C-02","Fraternization with Enemies"],
-    ["C-03","Unsanctioned Fratricide"],
-    ["C-04","Disruption"],
-    ["C-05","Obstruction of Guard Operations"]
-  ],
-  "Article V: Code of Order":[
-    ["O-01","Major Toxicity"],
-    ["O-02","Exploitation"],
-    ["O-03","Misuse of Enforcement Commands"],
-    ["O-04","Alternative Accounts"]
-  ]
+const lawsData={
+ "Article II: Code of Power":[
+  ["P-01","Contempt of Superiors"],
+  ["P-02","Insubordination"],
+  ["P-03","Illegitimate Usurpation"],
+  ["P-04","Abuse of Authority"],
+  ["P-05","Violation of Sith Regalia"]
+ ],
+ "Article III: Code of Secrecy":[
+  ["S-01","Divulgence of Council Secrets"],
+  ["S-02","Grand Deception"],
+  ["S-03","Unauthorized Access"],
+  ["S-04","Treason"]
+ ],
+ "Article IV: Code of Conflict":[
+  ["C-01","Cowardice"],
+  ["C-02","Fraternization with Enemies"],
+  ["C-03","Unsanctioned Fratricide"],
+  ["C-04","Disruption"],
+  ["C-05","Obstruction of Guard Operations"]
+ ],
+ "Article V: Code of Order":[
+  ["O-01","Major Toxicity"],
+  ["O-02","Exploitation"],
+  ["O-03","Misuse of Enforcement Commands"],
+  ["O-04","Alternative Accounts"]
+ ]
 };
 
 const lawsEl=document.getElementById("laws");
@@ -312,8 +337,13 @@ for(const group in lawsData){
 
   lawsData[group].forEach(l=>{
     const row=document.createElement("label");
-    row.className="law";
-    row.innerHTML=`<input type="checkbox" class="lawCheck" value="${l[0]}: ${l[1]}"><div><b>${l[0]}</b><span>${l[1]}</span></div>`;
+    row.className="lawRow";
+    row.innerHTML=
+      `<input type="checkbox" class="checkbox lawCheck" value="${l[0]}: ${l[1]}">
+       <div class="lawText">
+         <b>${l[0]}</b>
+         <span>${l[1]}</span>
+       </div>`;
     d.appendChild(row);
   });
   lawsEl.appendChild(d);
@@ -323,9 +353,9 @@ const today=new Date();
 date.value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
 
 function generate(){
-  const tiers=[...document.querySelectorAll(".tier:checked")].map(t=>t.value).join(", ");
-  const laws=[...document.querySelectorAll(".lawCheck:checked")].map(l=>l.value).join("; ");
-  output.value=
+ const tiers=[...document.querySelectorAll(".tier:checked")].map(t=>t.value).join(", ");
+ const laws=[...document.querySelectorAll(".lawCheck:checked")].map(l=>l.value).join("; ");
+ output.value=
 `Offender username: ${username.value}
 Offender rank: ${rank.value}
 Date of the event: ${date.value}
