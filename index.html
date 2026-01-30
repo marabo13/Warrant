@@ -1,632 +1,341 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Arrest Log Generator</title>
-  <style>
-    :root{
-      --bgA:#05010b;
-      --bgB:#0b0214;
-      --panel: rgba(255,255,255,.06);
-      --panel2: rgba(255,255,255,.04);
-      --line: rgba(255,255,255,.12);
-      --text:#f6f1ff;
-      --muted:#c7b7ff;
-      --accent:#a66bff;
-      --accent2:#6fdbff;
-      --bad:#ff6b8a;
-      --ok:#5dffb0;
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --r18: 18px;
-      --r14: 14px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrest Log Generator</title>
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+<style>
+:root{
+  --bg:#0b0214;
+  --panel:#140622;
+  --border:rgba(255,255,255,.14);
+  --text:#f5eeff;
+  --muted:#cbb7ff;
+  --accent:#a66bff;
+  --danger:#ff6b8a;
+}
 
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color:var(--text);
-      background:
-        radial-gradient(900px 520px at 10% -10%, rgba(166,107,255,.25) 0%, transparent 60%),
-        radial-gradient(800px 420px at 100% 20%, rgba(111,219,255,.18) 0%, transparent 55%),
-        radial-gradient(700px 420px at 40% 120%, rgba(255,107,138,.10) 0%, transparent 55%),
-        linear-gradient(160deg, var(--bgA), var(--bgB));
-      overflow-x:hidden;
-    }
+*{box-sizing:border-box}
 
-    /* subtle noise */
-    body::before{
-      content:"";
-      position:fixed; inset:-2px;
-      pointer-events:none;
-      opacity:.06;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
-      background-size:260px 260px;
-      mix-blend-mode:overlay;
-    }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: linear-gradient(160deg,#06010c,#12001f);
+  color:var(--text);
+}
 
-    .wrap{
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 28px 18px 34px;
-      position:relative;
-    }
+.container{
+  max-width:1100px;
+  margin:0 auto;
+  padding:24px 16px 32px;
+}
 
-    /* header */
-    .top{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:14px;
-      margin-bottom: 14px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width: 0;
-    }
-    .mark{
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(14px 14px at 30% 30%, rgba(111,219,255,.55) 0%, transparent 70%),
-        radial-gradient(14px 14px at 75% 65%, rgba(166,107,255,.65) 0%, transparent 70%),
-        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-      box-shadow: 0 14px 40px rgba(0,0,0,.45);
-      flex: 0 0 auto;
-    }
-    h1{
-      margin:0;
-      font-size: 22px;
-      letter-spacing:.2px;
-      line-height:1.15;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .subtitle{
-      margin:6px 0 0;
-      color: var(--muted);
-      font-size: 13.5px;
-      line-height:1.35;
-      max-width: 720px;
-    }
+h1{
+  margin:0 0 6px;
+  font-size:22px;
+}
+.subtitle{
+  color:var(--muted);
+  font-size:14px;
+  margin-bottom:18px;
+}
 
-    .stats{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .chip{
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
-      backdrop-filter: blur(10px);
-      border-radius: 999px;
-      padding: 8px 10px;
-      font-size: 12px;
-      color: var(--muted);
-      display:flex;
-      gap:8px;
-      align-items:center;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .dot{
-      width:8px; height:8px; border-radius:99px;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(166,107,255,.12);
-    }
-    .dot.c{ background: var(--accent2); box-shadow: 0 0 0 4px rgba(111,219,255,.10); }
-    .dot.g{ background: var(--ok); box-shadow: 0 0 0 4px rgba(93,255,176,.10); }
+.grid{
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap:14px;
+}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
 
-    /* layout */
-    .grid{
-      display:grid;
-      grid-template-columns: 1.12fr .88fr;
-      gap:14px;
-    }
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-      .stats{ justify-content:flex-start; }
-    }
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
 
-    /* panels */
-    .panel{
-      border-radius: var(--r18);
-      border: 1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .panelHead{
-      padding: 14px 14px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
-    }
-    .panelHead h2{
-      margin:0;
-      font-size: 13px;
-      letter-spacing:.35px;
-      text-transform: uppercase;
-      color: rgba(245,238,255,.92);
-    }
-    .panelBody{ padding: 14px; }
+.panelHeader{
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:.4px;
+}
 
-    .hint{
-      font-size:12px;
-      color: var(--muted);
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .badge{
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      border-radius: 999px;
-      padding: 7px 10px;
-      color: var(--muted);
-    }
-    .badge b{ color: rgba(245,238,255,.92); }
+.panelBody{
+  padding:14px;
+}
 
-    /* form */
-    .two{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 520px){
-      .two{ grid-template-columns: 1fr; }
-    }
-    label{
-      display:block;
-      margin: 0 0 6px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-    input[type="text"], input[type="date"], textarea, select{
-      width:100%;
-      border-radius: var(--r14);
-      border: 1px solid rgba(255,255,255,.13);
-      background: rgba(0,0,0,.22);
-      color: var(--text);
-      padding: 11px 11px;
-      outline:none;
-      transition: border-color .18s ease, background .18s ease;
-    }
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(166,107,255,.55);
-      background: rgba(0,0,0,.28);
-    }
-    textarea{ min-height: 96px; resize: vertical; }
+label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
 
-    .section{
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed rgba(255,255,255,.18);
-    }
+input, textarea, select{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#080010;
+  color:var(--text);
+}
 
-    /* tiers */
-    .tiers{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      padding: 10px;
-      border-radius: var(--r14);
-      border: 1px solid rgba(255,255,255,.13);
-      background: rgba(0,0,0,.18);
-    }
-    .tOpt{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      font-size: 12px;
-      user-select:none;
-      transition: background .18s ease, border-color .18s ease;
-    }
-    .tOpt:hover{
-      background: rgba(255,255,255,.05);
-      border-color: rgba(255,255,255,.20);
-    }
-    .tOpt input{ transform: translateY(1px); }
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
 
-    /* laws */
-    .toolbar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:space-between;
-      align-items:flex-end;
-      margin-bottom: 10px;
-    }
-    .search{ flex: 1 1 260px; max-width: 680px; }
-    .btnRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media(max-width:520px){
+  .two{grid-template-columns:1fr}
+}
 
-    .btn{
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: var(--r14);
-      cursor:pointer;
-      font-weight: 850;
-      font-size: 13px;
-      transition: transform .06s ease, background .18s ease, border-color .18s ease;
-      user-select:none;
-      min-height: 40px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      white-space:nowrap;
-    }
-    .btn:hover{
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,255,255,.25);
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn.primary{
-      border-color: rgba(166,107,255,.40);
-      background: linear-gradient(180deg, rgba(166,107,255,.38), rgba(166,107,255,.16));
-    }
-    .btn.danger{
-      border-color: rgba(255,107,138,.40);
-      background: linear-gradient(180deg, rgba(255,107,138,.30), rgba(255,107,138,.12));
-    }
+.section{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px dashed rgba(255,255,255,.2);
+}
 
-    .laws{
-      display:grid;
-      gap:10px;
-    }
+/* TIERS */
+.tiers{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#080010;
+}
+.tiers label{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  font-size:12px;
+  color:var(--text);
+}
 
-    /* SCROLLABLE LAWS BOX */
-    .lawsScroll{
-      max-height: 430px; /* adjust height if you want */
-      overflow: auto;
-      padding-right: 6px;
-      border-radius: var(--r18);
-    }
-    .lawsScroll::-webkit-scrollbar{ width: 10px; }
-    .lawsScroll::-webkit-scrollbar-thumb{
-      background: rgba(255,255,255,.14);
-      border-radius: 999px;
-    }
-    .lawsScroll::-webkit-scrollbar-track{
-      background: rgba(0,0,0,.12);
-      border-radius: 999px;
-    }
+/* LAWS SCROLL */
+.lawsScroll{
+  max-height:420px;
+  overflow:auto;
+  padding-right:6px;
+}
+.lawsScroll::-webkit-scrollbar{width:8px}
+.lawsScroll::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.2);
+  border-radius:999px;
+}
+.lawsScroll::-webkit-scrollbar-track{
+  background:rgba(0,0,0,.2);
+}
 
-    details{
-      border-radius: var(--r18);
-      border: 1px solid rgba(255,255,255,.12);
-      overflow:hidden;
-      background: rgba(0,0,0,.14);
-    }
-    summary{
-      list-style:none;
-      cursor:pointer;
-      padding: 12px 12px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      user-select:none;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-    }
-    summary::-webkit-details-marker{ display:none; }
-    .sumLeft{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .gName{ font-weight: 900; font-size: 13px; letter-spacing:.2px; }
-    .smallChip{
-      font-size:11px;
-      color: var(--muted);
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      padding: 3px 8px;
-      border-radius: 999px;
-    }
-    .smallChip.count{
-      border-color: rgba(111,219,255,.20);
-      color: rgba(210,248,255,.95);
-      background: rgba(111,219,255,.08);
-    }
+/* LAWS */
+details{
+  border:1px solid var(--border);
+  border-radius:14px;
+  margin-bottom:10px;
+  background:#090012;
+}
+summary{
+  cursor:pointer;
+  padding:10px 12px;
+  font-weight:700;
+  font-size:13px;
+}
+.law{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+.law b{font-size:13px}
+.law span{
+  font-size:12px;
+  color:var(--muted);
+}
 
-    .lawList{
-      padding: 10px 12px 12px;
-      display:grid;
-      gap:8px;
-    }
-    .lawItem{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding: 10px 10px;
-      border-radius: var(--r14);
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      transition: background .18s ease, border-color .18s ease;
-    }
-    .lawItem:hover{
-      border-color: rgba(255,255,255,.20);
-      background: rgba(255,255,255,.05);
-    }
-    .lawItem input{ margin-top: 2px; }
-    .lawMeta{ display:flex; flex-direction:column; gap:4px; min-width:0; }
-    .lawTitle{
-      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
-      font-size: 13px; font-weight: 900;
-    }
-    .code{
-      font-size:11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(166,107,255,.35);
-      background: rgba(166,107,255,.10);
-      color: rgba(245,238,255,.96);
-    }
-    .lawDesc{
-      font-size:12px;
-      color: var(--muted);
-      line-height:1.35;
-    }
+/* BUTTONS */
+.actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+button{
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#1a0a30;
+  color:var(--text);
+  font-weight:700;
+  cursor:pointer;
+}
+button.primary{background:#3a1b6d}
+button.danger{background:#4a1425}
 
-    /* right side */
-    .sideStack{
-      display:grid;
-      gap:14px;
-      align-content:start;
-    }
-    @media (min-width: 981px){
-      .stickyRight{
-        position: sticky;
-        top: 14px;
-      }
-    }
-
-    .previewBox{
-      border-radius: var(--r18);
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      padding: 12px;
-    }
-    .previewTitle{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom: 10px;
-    }
-    .previewTitle b{ font-size: 13px; letter-spacing:.2px; }
-    .previewList{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-    .tag{
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      color: rgba(245,238,255,.92);
-    }
-
-    .output{
-      width:100%;
-      min-height: 360px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      line-height: 1.45;
-      background: rgba(0,0,0,.30);
-    }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .help{
-      margin-top:8px;
-      font-size:12px;
-      color: var(--muted);
-      line-height:1.4;
-    }
-
-    .toast{
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 18px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.38);
-      backdrop-filter: blur(10px);
-      color: rgba(245,238,255,.95);
-      font-size:12px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.45);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .18s ease, transform .18s ease;
-    }
-    .toast.show{
-      opacity:1;
-      transform: translateX(-50%) translateY(-6px);
-    }
-  </style>
+/* OUTPUT */
+.output{
+  min-height:320px;
+  font-family:monospace;
+  background:#080010;
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">
-        <div class="mark" aria-hidden="true"></div>
-        <div>
-          <h1>Arrest Log Generator</h1>
-          <div class="subtitle">Fill details, select law(s), choose tier(s), generate message, and copy.</div>
+<div class="container">
+  <h1>Arrest Log Generator</h1>
+  <div class="subtitle">Fill details, scroll laws, select tiers, generate arrest log.</div>
+
+  <div class="grid">
+    <!-- LEFT -->
+    <div class="panel">
+      <div class="panelHeader">Arrest Details</div>
+      <div class="panelBody">
+
+        <div class="two">
+          <div>
+            <label>Offender Username</label>
+            <input id="username">
+          </div>
+
+          <div>
+            <label>Offender Rank</label>
+            <select id="rank">
+              <option value="">-- Select rank --</option>
+              <option>Sith Potential</option>
+              <option>Sith Acolyte I</option>
+              <option>Sith Acolyte II</option>
+              <option>Sith Acolyte III</option>
+              <option>Sith Acolyte IV</option>
+              <option>Sith Acolyte V</option>
+              <option>Sith Initiate</option>
+              <option>Sith Apprentice</option>
+              <option>Sith Knight</option>
+              <option>Sith Lord</option>
+              <option>Darth</option>
+              <option>Powerbase</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Date of Event</label>
+            <input type="date" id="date">
+          </div>
+
+          <div>
+            <label>Tier(s)</label>
+            <div class="tiers">
+              <label><input type="checkbox" class="tier" value="Tier I"> Tier I</label>
+              <label><input type="checkbox" class="tier" value="Tier II"> Tier II</label>
+              <label><input type="checkbox" class="tier" value="Tier III"> Tier III</label>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="stats">
-        <div class="chip"><span class="dot"></span><span id="lawsSelectedPill">0 laws</span></div>
-        <div class="chip"><span class="dot c"></span><span id="tiersSelectedPill">0 tiers</span></div>
-        <div class="chip"><span class="dot g"></span><span id="datePill">Date: —</span></div>
+
+        <div class="section">
+          <label>Laws Broken</label>
+          <div class="lawsScroll" id="laws"></div>
+        </div>
+
+        <div class="section">
+          <label>Summary of Event</label>
+          <textarea id="summary"></textarea>
+
+          <label>Evidence</label>
+          <textarea id="evidence"></textarea>
+        </div>
       </div>
     </div>
 
-    <div class="grid">
-      <!-- LEFT -->
-      <section class="panel">
-        <div class="panelHead">
-          <h2>Details</h2>
-          <div class="hint">
-            <span class="badge">Scroll inside laws to view everything</span>
-          </div>
+    <!-- RIGHT -->
+    <div class="panel">
+      <div class="panelHeader">Generated Arrest Log</div>
+      <div class="panelBody">
+        <textarea id="output" class="output" readonly></textarea>
+        <div class="actions">
+          <button class="primary" onclick="generate()">Generate</button>
+          <button onclick="copyText()">Copy</button>
+          <button class="danger" onclick="resetAll()">Reset</button>
         </div>
-
-        <div class="panelBody">
-          <div class="two">
-            <div>
-              <label for="username">Offender username</label>
-              <input id="username" type="text" placeholder="e.g. DarthExample" />
-            </div>
-
-            <div>
-              <label for="rank">Offender rank</label>
-              <select id="rank">
-                <option value="">-- Select rank --</option>
-                <option>Sith Potential</option>
-
-                <option>Sith Acolyte I</option>
-                <option>Sith Acolyte II</option>
-                <option>Sith Acolyte III</option>
-                <option>Sith Acolyte IV</option>
-                <option>Sith Acolyte V</option>
-
-                <option>Sith Initiate</option>
-                <option>Sith Apprentice</option>
-                <option>Sith Knight</option>
-
-                <option>Sith Lord</option>
-                <option>Darth</option>
-                <option>Powerbase</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="eventDate">Date of the event</label>
-              <input id="eventDate" type="date" />
-            </div>
-
-            <div>
-              <label>Tier(s)</label>
-              <div class="tiers" id="tiersBox">
-                <label class="tOpt"><input type="checkbox" class="tierPick" value="Tier I"> Tier I</label>
-                <label class="tOpt"><input type="checkbox" class="tierPick" value="Tier II"> Tier II</label>
-                <label class="tOpt"><input type="checkbox" class="tierPick" value="Tier III"> Tier III</label>
-              </div>
-              <div class="help">You pick tier(s) manually.</div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="toolbar">
-              <div class="search">
-                <label for="lawSearch">Search laws</label>
-                <input id="lawSearch" type="text" placeholder="Search by code or name (e.g. P-02, Treason, Toxicity)" />
-              </div>
-              <div class="btnRow">
-                <button class="btn" id="selectVisibleBtn" type="button">Select visible</button>
-                <button class="btn danger" id="clearSelectionBtn" type="button">Clear selection</button>
-              </div>
-            </div>
-
-            <!-- SCROLLABLE LAWS AREA -->
-            <div class="lawsScroll">
-              <div class="laws" id="lawGroups"></div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="two">
-              <div>
-                <label for="summary">Summary of event</label>
-                <textarea id="summary" placeholder="Write what happened..."></textarea>
-              </div>
-              <div>
-                <label for="evidence">Evidence</label>
-                <textarea id="evidence" placeholder="Links, screenshots, witnesses, logs, etc..."></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- RIGHT -->
-      <div class="sideStack stickyRight">
-        <section class="panel">
-          <div class="panelHead">
-            <h2>Preview</h2>
-            <div class="hint">
-              <span class="badge">Selected laws & tiers</span>
-            </div>
-          </div>
-          <div class="panelBody">
-            <div class="previewBox">
-              <div class="previewTitle">
-                <b>Selected</b>
-                <span class="badge" id="readyBadge">Missing fields</span>
-              </div>
-              <div class="previewList" id="previewTags"></div>
-              <div class="help" id="previewHelp">Pick at least 1 law and 1 tier.</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="panelHead">
-            <h2>Output</h2>
-            <div class="actions">
-              <button class="btn primary" id="generateBtn" type="button">Generate</button>
-              <button class="btn" id="copyBtn" type="button">Copy</button>
-              <button class="btn danger" id="resetAllBtn" type="button">Reset</button>
-            </div>
-          </div>
-          <div class="panelBody">
-            <label for="output">Generated arrest log</label>
-            <textarea id="output" class="output" readonly placeholder="Click Generate..."></textarea>
-            <div class="help">After generating, hit <b>Copy</b> and paste into your log/Discord.</div>
-          </div>
-        </section>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="toast" id="toast">Copied</div>
+<script>
+const lawsData = {
+  "Article II: Code of Power":[
+    ["P-01","Contempt of Superiors"],
+    ["P-02","Insubordination"],
+    ["P-03","Illegitimate Usurpation"],
+    ["P-04","Abuse of Authority"],
+    ["P-05","Violation of Sith Regalia"]
+  ],
+  "Article III: Code of Secrecy":[
+    ["S-01","Divulgence of Council Secrets"],
+    ["S-02","Grand Deception"],
+    ["S-03","Unauthorized Access"],
+    ["S-04","Treason"]
+  ],
+  "Article IV: Code of Conflict":[
+    ["C-01","Cowardice"],
+    ["C-02","Fraternization with Enemies"],
+    ["C-03","Unsanctioned Fratricide"],
+    ["C-04","Disruption"],
+    ["C-05","Obstruction of Guard Operations"]
+  ],
+  "Article V: Code of Order":[
+    ["O-01","Major Toxicity"],
+    ["O-02","Exploitation"],
+    ["O-03","Misuse of Enforcement Commands"],
+    ["O-04","Alternative Accounts"]
+  ]
+};
 
-  <script>
-    const LAWS = [
-      { group: "Article II: The Code of Power", code: "P-01", name: "Contempt of Superiors", desc: "Open disrespect/mocking/refusal to acknowledge higher rank; refusing to kneel or show proper deference." },
-      { group: "Article II: The Code of Power", code: "P-02", name: "Insubordination", desc: "Refusal to carry out a lawful order from a superior (severity-based)." },
-      { group: "Article II: The Code of Power", code: "P
+const lawsEl=document.getElementById("laws");
+for(const group in lawsData){
+  const d=document.createElement("details");
+  d.open=true;
+  const s=document.createElement("summary");
+  s.textContent=group;
+  d.appendChild(s);
+
+  lawsData[group].forEach(l=>{
+    const row=document.createElement("label");
+    row.className="law";
+    row.innerHTML=`<input type="checkbox" class="lawCheck" value="${l[0]}: ${l[1]}"><div><b>${l[0]}</b><span>${l[1]}</span></div>`;
+    d.appendChild(row);
+  });
+  lawsEl.appendChild(d);
+}
+
+const today=new Date();
+date.value=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+
+function generate(){
+  const tiers=[...document.querySelectorAll(".tier:checked")].map(t=>t.value).join(", ");
+  const laws=[...document.querySelectorAll(".lawCheck:checked")].map(l=>l.value).join("; ");
+  output.value=
+`Offender username: ${username.value}
+Offender rank: ${rank.value}
+Date of the event: ${date.value}
+Law(s) broken: ${laws}
+Tier(s): ${tiers}
+Summary of event: ${summary.value}
+Evidence: ${evidence.value}`;
+}
+function copyText(){navigator.clipboard.writeText(output.value);}
+function resetAll(){location.reload();}
+</script>
+</body>
+</html>
