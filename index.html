@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Law Report Generator</title>
+  <title>Arrest Log Generator</title>
+
   <style>
     :root{
       --bg1:#12001f;
@@ -14,10 +15,12 @@
       --accent:#a66bff;
       --danger:#ff6b8a;
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color:var(--text);
       background:
         radial-gradient(1200px 600px at 20% 0%, #2a0054 0%, transparent 60%),
@@ -25,435 +28,250 @@
         linear-gradient(160deg, var(--bg1), var(--bg2));
       min-height:100vh;
     }
+
     header{
-      padding:28px 18px 10px;
       max-width:1100px;
       margin:0 auto;
+      padding:28px 18px 10px;
     }
-    h1{margin:0 0 6px;font-size:22px;letter-spacing:.2px}
-    p.sub{margin:0;color:var(--muted);font-size:14px;line-height:1.4}
+
+    h1{margin:0 0 6px;font-size:22px}
+    p.sub{margin:0;color:var(--muted);font-size:14px}
+
     .wrap{
       max-width:1100px;
       margin:0 auto;
       padding:16px 18px 34px;
       display:grid;
-      grid-template-columns: 1.05fr .95fr;
+      grid-template-columns:1.05fr .95fr;
       gap:14px;
     }
-    @media (max-width: 980px){.wrap{grid-template-columns:1fr}}
+
+    @media (max-width:900px){
+      .wrap{grid-template-columns:1fr}
+    }
+
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--line);
       border-radius:18px;
       overflow:hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
     }
+
     .hd{
-      padding:14px 14px 10px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      padding:14px;
       border-bottom:1px solid var(--line);
-      display:flex;gap:10px;align-items:center;justify-content:space-between;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
     }
-    .hd h2{margin:0;font-size:14px;letter-spacing:.25px}
+
     .bd{padding:14px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:520px){.grid2{grid-template-columns:1fr}}
-    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
-    input[type="text"], input[type="date"], textarea{
+
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    @media (max-width:520px){
+      .grid2{grid-template-columns:1fr}
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    input, textarea, select{
       width:100%;
-      padding:10px 10px;
+      padding:10px;
       border-radius:12px;
       border:1px solid var(--line);
-      outline:none;
-      background: rgba(0,0,0,.22);
+      background:rgba(0,0,0,.25);
       color:var(--text);
     }
-    textarea{min-height:90px;resize:vertical}
-    .small{font-size:12px;color:var(--muted);margin-top:6px}
-    .section{margin-top:12px;border-top:1px dashed rgba(255,255,255,.18);padding-top:12px}
-    .laws-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between}
-    .search{flex:1 1 220px;max-width:520px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
-    .btn{
-      appearance:none;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
-      padding:9px 12px;
+
+    textarea{min-height:90px}
+
+    .section{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px dashed rgba(255,255,255,.2);
+    }
+
+    .tierBox{
+      display:flex;
+      gap:12px;
+      padding:10px;
       border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.2);
+      flex-wrap:wrap;
+    }
+
+    .tierBox label{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      color:var(--text);
+    }
+
+    .law{
+      display:flex;
+      gap:10px;
+      padding:8px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;
+      background:rgba(255,255,255,.04);
+      margin-bottom:6px;
+    }
+
+    .btn{
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
       cursor:pointer;
       font-weight:700;
-      font-size:13px;
-      transition: transform .06s ease, background .18s ease, border-color .18s ease;
-      user-select:none;
-      white-space:nowrap;
     }
-    .btn:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.25)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{
-      border-color: rgba(166,107,255,.45);
-      background: linear-gradient(180deg, rgba(166,107,255,.35), rgba(166,107,255,.16));
-    }
-    .btn.danger{
-      border-color: rgba(255,107,138,.45);
-      background: linear-gradient(180deg, rgba(255,107,138,.30), rgba(255,107,138,.12));
-    }
-    details{
-      border:1px solid var(--line);
-      border-radius:14px;
-      overflow:hidden;
-      background: rgba(0,0,0,.14);
-      margin-top:10px;
-    }
-    summary{
-      cursor:pointer;
-      padding:10px 12px;
-      list-style:none;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      background: rgba(255,255,255,.04);
-      user-select:none;
-    }
-    summary::-webkit-details-marker{display:none}
-    .sum-left{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-    .tag{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.18);color:var(--muted);background: rgba(255,255,255,.04)}
-    .count{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid rgba(166,107,255,.35);color:rgba(240,228,255,.95);background: rgba(166,107,255,.10)}
-    .law-list{padding:10px 12px 12px;display:grid;gap:8px}
-    .law-item{
-      display:flex;gap:10px;align-items:flex-start;
-      padding:9px 10px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:12px;
-      background: rgba(255,255,255,.03);
-    }
-    .law-item:hover{border-color: rgba(255,255,255,.20); background: rgba(255,255,255,.05)}
-    .law-item input{margin-top:2px}
-    .law-meta{display:flex;flex-direction:column;gap:3px;min-width:0}
-    .law-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:800}
-    .law-desc{font-size:12px;color:var(--muted);line-height:1.35}
-    .pill{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background: rgba(0,0,0,.18)}
-    .tier1{border-color: rgba(93,255,176,.35); background: rgba(93,255,176,.10)}
-    .tier2{border-color: rgba(111,219,255,.35); background: rgba(111,219,255,.10)}
-    .tier3{border-color: rgba(255,107,138,.35); background: rgba(255,107,138,.10)}
+
+    .btn.primary{background:rgba(166,107,255,.3)}
+    .btn.danger{background:rgba(255,107,138,.3)}
+
     .output{
-      width:100%;
-      min-height:240px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px;
-      line-height:1.45;
-      background: rgba(0,0,0,.32);
+      min-height:260px;
+      font-family:monospace;
+      background:rgba(0,0,0,.35);
     }
-    .hint{font-size:12px;color:var(--muted)}
-    footer{
-      max-width:1100px;margin:0 auto;padding:0 18px 22px;color:var(--muted);
-      font-size:12px;opacity:.9;
-    }
-    a{color:#e6d7ff}
   </style>
 </head>
+
 <body>
-  <header>
-    <h1>Law Report Generator</h1>
-    <p class="sub">Select law(s), enter details, then generate a formatted message. Tiers auto-fill from selected laws.</p>
-  </header>
 
-  <main class="wrap">
-    <section class="card">
-      <div class="hd">
-        <h2>Case Details</h2>
-        <div class="hint" id="selectedHint">0 laws selected</div>
+<header>
+  <h1>Arrest Log Generator</h1>
+  <p class="sub">Fill in details, select laws & tiers, then generate an arrest log.</p>
+</header>
+
+<main class="wrap">
+
+<!-- LEFT -->
+<section class="card">
+  <div class="hd">
+    <h2>Arrest Details</h2>
+  </div>
+
+  <div class="bd">
+
+    <div class="grid2">
+      <div>
+        <label>Offender Username</label>
+        <input id="username">
       </div>
-      <div class="bd">
-        <div class="grid2">
-          <div>
-            <label for="username">Law evader username</label>
-            <input id="username" type="text" placeholder="e.g. DarthExample" />
-          </div>
-          <div>
-            <label for="rank">Law evader rank</label>
-            <input id="rank" type="text" placeholder="e.g. Acolyte / Lord / etc." />
-          </div>
-          <div>
-            <label for="eventDate">Date of the event</label>
-            <input id="eventDate" type="date" />
-          </div>
-          <div>
-            <label for="tiersPreview">Tier(s) (auto)</label>
-            <input id="tiersPreview" type="text" placeholder="Select laws to fill..." readonly />
-          </div>
-        </div>
 
-        <div class="section">
-          <div class="laws-toolbar">
-            <div class="search">
-              <label for="lawSearch">Search laws</label>
-              <input id="lawSearch" type="text" placeholder="Search by code or name (e.g. P-02, Treason, Toxicity)" />
-            </div>
-            <div class="row">
-              <button class="btn" id="selectAllBtn" type="button">Select visible</button>
-              <button class="btn danger" id="clearBtn" type="button">Clear</button>
-            </div>
-          </div>
-          <div class="small">Each selected law appears in <b>Law(s) broken</b>, and its tier is included in <b>Tier(s)</b>.</div>
+      <div>
+        <label>Offender Rank</label>
+        <select id="rank">
+          <option value="">-- Select rank --</option>
+          <option>Sith Potential</option>
 
-          <div id="lawGroups"></div>
-        </div>
+          <option>Sith Acolyte I</option>
+          <option>Sith Acolyte II</option>
+          <option>Sith Acolyte III</option>
+          <option>Sith Acolyte IV</option>
+          <option>Sith Acolyte V</option>
 
-        <div class="section">
-          <div class="grid2">
-            <div>
-              <label for="summary">Summary of event</label>
-              <textarea id="summary" placeholder="Write what happened..."></textarea>
-            </div>
-            <div>
-              <label for="evidence">Evidence</label>
-              <textarea id="evidence" placeholder="Links, screenshots, witnesses, logs, etc..."></textarea>
-            </div>
-          </div>
+          <option>Sith Initiate</option>
+          <option>Sith Apprentice</option>
+          <option>Sith Knight</option>
+
+          <option>Sith Lord</option>
+          <option>Darth</option>
+          <option>Powerbase</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Date of Event</label>
+        <input type="date" id="date">
+      </div>
+
+      <div>
+        <label>Tier(s)</label>
+        <div class="tierBox">
+          <label><input type="checkbox" class="tier" value="Tier I"> Tier I</label>
+          <label><input type="checkbox" class="tier" value="Tier II"> Tier II</label>
+          <label><input type="checkbox" class="tier" value="Tier III"> Tier III</label>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="card">
-      <div class="hd">
-        <h2>Generated Message</h2>
-        <div class="row">
-          <button class="btn primary" id="genBtn" type="button">Generate message</button>
-          <button class="btn" id="copyBtn" type="button">Copy</button>
-        </div>
-      </div>
-      <div class="bd">
-        <label for="output">Output</label>
-        <textarea id="output" class="output" readonly placeholder="Click “Generate message”..."></textarea>
-        <div class="small">Owner: <b>marabo13</b> • Deploy with GitHub Pages from this repo.</div>
-      </div>
-    </section>
-  </main>
+    <div class="section">
+      <label>Laws Broken</label>
 
-  <footer>
-    Tip: If you want this on <b>https://marabo13.github.io</b> (no /repo-name), create a repo named <b>marabo13.github.io</b> instead.
-  </footer>
+      <div class="law"><input type="checkbox" class="lawCheck" value="P-02 Insubordination"> P-02 Insubordination</div>
+      <div class="law"><input type="checkbox" class="lawCheck" value="S-04 Treason"> S-04 Treason</div>
+      <div class="law"><input type="checkbox" class="lawCheck" value="C-01 Cowardice"> C-01 Cowardice</div>
+      <div class="law"><input type="checkbox" class="lawCheck" value="O-01 Major Toxicity"> O-01 Major Toxicity</div>
 
-  <script>
-    const LAWS = [
-      // Article II: The Code of Power
-      { group: "Article II: The Code of Power", code: "P-01", name: "Contempt of Superiors", tier: "Tier I", desc: "Open disrespect/mocking/refusal to acknowledge higher rank; refusing to kneel or show proper deference." },
-      { group: "Article II: The Code of Power", code: "P-02", name: "Insubordination", tier: "Tier I or Tier II", desc: "Refusal to carry out a lawful order from a superior (severity-based)." },
-      { group: "Article II: The Code of Power", code: "P-03", name: "Illegitimate Usurpation", tier: "Tier II or Tier III", desc: "Attempting to seize rank/title through weak means (e.g., OOC collusion, exploiting bugs) (severity-based)." },
-      { group: "Article II: The Code of Power", code: "P-04", name: "Abuse of Authority", tier: "Tier II or Tier III", desc: "Using rank to punish for personal whims; punishments not serving the Order (severity-based)." },
-      { group: "Article II: The Code of Power", code: "P-05", name: "Violation of the Sith Regalia", tier: "Tier I or Tier II", desc: "Deviating from required Sith attire/regalia; refusal to comply escalates (severity-based)." },
+    </div>
 
-      // Article III: The Code of Secrecy
-      { group: "Article III: The Code of Secrecy", code: "S-01", name: "Divulgence of Council Secrets", tier: "Varies", desc: "Revealing internal Council-reserved intelligence to outsiders (plans, roster, spawn/base locations, internal comms, screenshots, etc.)." },
-      { group: "Article III: The Code of Secrecy", code: "S-02", name: "Grand Deception", tier: "Tier I or Tier II", desc: "Knowingly providing false info to Inner Circle/high-ranks during investigation (severity-based)." },
-      { group: "Article III: The Code of Secrecy", code: "S-03", name: "Unauthorized Access", tier: "Tier I", desc: "Trespassing restricted areas of temple/dojos/spawns above one's station." },
-      { group: "Article III: The Code of Secrecy", code: "S-04", name: "Treason", tier: "Tier III", desc: "Aiding/abetting enemies (Jedi/Republic): fraternization, sharing intel, sparing enemy without orders, etc." },
+    <div class="section">
+      <label>Summary of Event</label>
+      <textarea id="summary"></textarea>
 
-      // Article IV: The Code of Conflict
-      { group: "Article IV: The Code of Conflict", code: "C-01", name: "Cowardice", tier: "Tier II", desc: "Fleeing designated combat after provoking combat; refusing to fight/abandoning post while engaged." },
-      { group: "Article IV: The Code of Conflict", code: "C-02", name: "Fraternization with Enemies", tier: "Tier II", desc: "Non-hostile contact with Jedi/Republic agent without sanctioned operation in Sith territory." },
-      { group: "Article IV: The Code of Conflict", code: "C-03", name: "Unsanctioned Fratricide", tier: "Tier I or Tier II", desc: "Murdering a fellow Sith outside a consented duel (tier depends on victim rank)." },
-      { group: "Article IV: The Code of Conflict", code: "C-04", name: "Disruption", tier: "Tier I", desc: "Interfering in official events/duels; healing/attacking/distracting participants; disrupting classes/formal events." },
-      { group: "Article IV: The Code of Conflict", code: "C-05", name: "Obstruction of Guard Operations", tier: "Tier II", desc: "Interfering with/distracting/harassing/deceiving a guard on duty; undermining authority/readiness." },
+      <label>Evidence</label>
+      <textarea id="evidence"></textarea>
+    </div>
 
-      // Article V: The Code of Order
-      { group: "Article V: The Code of Order", code: "O-01", name: "Major Toxicity", tier: "Tier II or Tier III", desc: "OOC toxicity: racism, sexism, homophobia, political/religious attacks, slurs, targeted bullying, etc." },
-      { group: "Article V: The Code of Order", code: "O-02", name: "Exploitation", tier: "Tier III", desc: "Third-party hacks/scripts or using bugs/glitches for unfair advantage; cheating not tolerated." },
-      { group: "Article V: The Code of Order", code: "O-03", name: "Misuse of Enforcement Commands", tier: "Tier II", desc: "(Admins/mods) Using OOC commands for IC reasons; tool abuse for advantage/punishment (also immediate suspension/removal)." },
-      { group: "Article V: The Code of Order", code: "O-04", name: "Alternative Accounts", tier: "Tier III", desc: "Multiple accounts to deceive moderation/community or bypass restrictions (ban evasion, espionage, boosting stats, etc.)." },
-    ];
+  </div>
+</section>
 
-    const tierOrder = ["Tier I", "Tier II", "Tier III", "Varies"];
-    const selectedSet = new Set();
+<!-- RIGHT -->
+<section class="card">
+  <div class="hd">
+    <h2>Generated Arrest Log</h2>
+    <div>
+      <button class="btn primary" onclick="generate()">Generate</button>
+      <button class="btn" onclick="copyText()">Copy</button>
+    </div>
+  </div>
 
-    function normalizeTier(tierStr){
-      return tierStr.split("or").map(s => s.trim());
-    }
-    function unique(arr){ return [...new Set(arr)]; }
-    function getTierPillClass(t){
-      if (t === "Tier I") return "pill tier1";
-      if (t === "Tier II") return "pill tier2";
-      if (t === "Tier III") return "pill tier3";
-      return "pill";
-    }
+  <div class="bd">
+    <textarea id="output" class="output" readonly></textarea>
+  </div>
+</section>
 
-    const lawGroupsEl = document.getElementById("lawGroups");
-    const groups = unique(LAWS.map(l => l.group));
+</main>
 
-    function restoreCheckboxState(){
-      document.querySelectorAll('input[type="checkbox"][data-code]').forEach(cb => {
-        cb.checked = selectedSet.has(cb.dataset.code);
-      });
-    }
+<script>
+  // auto date
+  const d = new Date();
+  document.getElementById("date").value =
+    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 
-    function updateSelections(){
-      document.querySelectorAll('input[type="checkbox"][data-code]').forEach(cb => {
-        if (cb.checked) selectedSet.add(cb.dataset.code);
-        else selectedSet.delete(cb.dataset.code);
-      });
+  function generate(){
+    const tiers = [...document.querySelectorAll(".tier:checked")].map(t=>t.value).join(", ");
+    const laws = [...document.querySelectorAll(".lawCheck:checked")].map(l=>l.value).join("; ");
 
-      const selectedLaws = LAWS.filter(l => selectedSet.has(l.code));
-      let tiers = [];
-      selectedLaws.forEach(l => tiers.push(...normalizeTier(l.tier)));
-      tiers = unique(tiers).sort((a,b)=>tierOrder.indexOf(a)-tierOrder.indexOf(b));
-      document.getElementById("tiersPreview").value = tiers.join(", ");
-      document.getElementById("selectedHint").textContent = `${selectedLaws.length} laws selected`;
-    }
+    document.getElementById("output").value =
+`Offender username: ${username.value}
+Offender rank: ${rank.value}
+Date of the event: ${date.value}
+Law(s) broken: ${laws}
+Tier(s): ${tiers}
+Summary of event: ${summary.value}
+Evidence: ${evidence.value}`;
+  }
 
-    function renderLawGroups(filterText=""){
-      lawGroupsEl.innerHTML = "";
-      const q = filterText.trim().toLowerCase();
+  function copyText(){
+    navigator.clipboard.writeText(output.value);
+  }
+</script>
 
-      for (const g of groups){
-        const laws = LAWS.filter(l => l.group === g).filter(l => {
-          if (!q) return true;
-          return (
-            l.code.toLowerCase().includes(q) ||
-            l.name.toLowerCase().includes(q) ||
-            l.desc.toLowerCase().includes(q) ||
-            l.tier.toLowerCase().includes(q)
-          );
-        });
-
-        if (laws.length === 0) continue;
-
-        const details = document.createElement("details");
-        details.open = true;
-
-        const summary = document.createElement("summary");
-        const left = document.createElement("div");
-        left.className = "sum-left";
-        left.innerHTML = `<span style="font-weight:900;font-size:13px">${g}</span>`;
-        const tag = document.createElement("span");
-        tag.className = "tag";
-        tag.textContent = "Laws";
-        const count = document.createElement("span");
-        count.className = "count";
-        count.textContent = `${laws.length} shown`;
-        left.appendChild(tag);
-        summary.appendChild(left);
-        summary.appendChild(count);
-
-        const list = document.createElement("div");
-        list.className = "law-list";
-
-        for (const law of laws){
-          const row = document.createElement("label");
-          row.className = "law-item";
-
-          const cb = document.createElement("input");
-          cb.type = "checkbox";
-          cb.dataset.code = law.code;
-
-          const meta = document.createElement("div");
-          meta.className = "law-meta";
-
-          const title = document.createElement("div");
-          title.className = "law-title";
-
-          const tiers = normalizeTier(law.tier);
-          const tierPills = tiers.map(t => `<span class="${getTierPillClass(t)}">${t}</span>`).join(" ");
-
-          title.innerHTML = `<span>${law.code}: ${law.name}</span> ${tierPills}`;
-
-          const desc = document.createElement("div");
-          desc.className = "law-desc";
-          desc.textContent = law.desc;
-
-          meta.appendChild(title);
-          meta.appendChild(desc);
-
-          row.appendChild(cb);
-          row.appendChild(meta);
-          list.appendChild(row);
-
-          cb.addEventListener("change", updateSelections);
-        }
-
-        details.appendChild(summary);
-        details.appendChild(list);
-        lawGroupsEl.appendChild(details);
-      }
-
-      restoreCheckboxState();
-      updateSelections();
-    }
-
-    function formatLawsLine(selectedLaws){
-      if (selectedLaws.length === 0) return "";
-      return selectedLaws.map(l => `${l.code}: ${l.name}`).join("; ");
-    }
-
-    function formatTiersLine(selectedLaws){
-      let tiers = [];
-      selectedLaws.forEach(l => tiers.push(...normalizeTier(l.tier)));
-      tiers = unique(tiers).sort((a,b)=>tierOrder.indexOf(a)-tierOrder.indexOf(b));
-      return tiers.join(", ");
-    }
-
-    function generateMessage(){
-      const username = document.getElementById("username").value.trim();
-      const rank = document.getElementById("rank").value.trim();
-      const date = document.getElementById("eventDate").value;
-      const summary = document.getElementById("summary").value.trim();
-      const evidence = document.getElementById("evidence").value.trim();
-      const selectedLaws = LAWS.filter(l => selectedSet.has(l.code));
-
-      const msg =
-`Law evader username: ${username || ""}
-Law evader rank: ${rank || ""}
-Date of the event: ${date || ""}
-Law(s) broken: ${formatLawsLine(selectedLaws) || ""}
-Tier(s): ${formatTiersLine(selectedLaws) || ""}
-Summary of event: ${summary || ""}
-Evidence: ${evidence || ""}`.trimEnd();
-
-      document.getElementById("output").value = msg;
-    }
-
-    async function copyOutput(){
-      const text = document.getElementById("output").value;
-      if (!text) return;
-      try{
-        await navigator.clipboard.writeText(text);
-        const btn = document.getElementById("copyBtn");
-        const old = btn.textContent;
-        btn.textContent = "Copied!";
-        setTimeout(()=>btn.textContent = old, 900);
-      }catch(e){
-        alert("Copy failed. You can manually select and copy the text.");
-      }
-    }
-
-    function clearAll(){
-      selectedSet.clear();
-      document.getElementById("username").value = "";
-      document.getElementById("rank").value = "";
-      document.getElementById("eventDate").value = "";
-      document.getElementById("summary").value = "";
-      document.getElementById("evidence").value = "";
-      document.getElementById("output").value = "";
-      document.getElementById("lawSearch").value = "";
-      renderLawGroups("");
-    }
-
-    function selectVisible(){
-      document.querySelectorAll('input[type="checkbox"][data-code]').forEach(cb => {
-        cb.checked = true;
-        selectedSet.add(cb.dataset.code);
-      });
-      updateSelections();
-    }
-
-    document.getElementById("genBtn").addEventListener("click", generateMessage);
-    document.getElementById("copyBtn").addEventListener("click", copyOutput);
-    document.getElementById("clearBtn").addEventListener("click", clearAll);
-    document.getElementById("selectAllBtn").addEventListener("click", selectVisible);
-    document.getElementById("lawSearch").addEventListener("input", (e) => renderLawGroups(e.target.value));
-
-    renderLawGroups("");
-    const today = new Date();
-    document.getElementById("eventDate").value =
-      `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-  </script>
 </body>
 </html>
